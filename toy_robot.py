@@ -35,7 +35,7 @@ class ToyRobot:
         self.pointer_x = 0
         self.pointer_y = 0
         self.saved_direction = 'EAST'
-        self.dirs = ['NORTH', 'SOUTH', 'EAST', 'WEST']
+        self.dirs = ['NORTH', 'SOUTH', 'EAST', 'WEST', 'NORTH EAST', 'SOUTH EAST', 'NORTH WEST', 'SOUTH WEST']
         self.table = {}
         self.intialise()
 
@@ -119,29 +119,75 @@ class ToyRobot:
             self.pointer_x = self.pointer_x - 1
             self.pointer_y = self.pointer_y
 
+        # if direction is NORTH WEST and modifying location value doesn't cause robot to fall outside the table
+        if self.dirs[6] == self.saved_direction and self.validation(self.pointer_x - 1) and self.validation(self.pointer_y + 1) and self.obstruction(
+                self.pointer_x - 1, self.pointer_y + 1) is True:  # NORTH WEST
+            self.table[self.pointer_x - 1, self.pointer_y + 1] = 1
+            self.pointer_x = self.pointer_x - 1
+            self.pointer_y = self.pointer_y + 1
+
+            # if direction is NORTH EAST and modifying location value doesn't cause robot to fall outside the table
+        if self.dirs[4] == self.saved_direction and self.validation(self.pointer_x + 1) and self.validation(self.pointer_y + 1) and self.obstruction(
+                self.pointer_x + 1, self.pointer_y + 1) is True:  # NORTH EAST
+            self.table[self.pointer_x + 1, self.pointer_y + 1] = 1
+            self.pointer_x = self.pointer_x + 1
+            self.pointer_y = self.pointer_y + 1
+
+            # if direction is SOUTH WEST and modifying location value doesn't cause robot to fall outside the table
+        if self.dirs[7] == self.saved_direction and self.validation(self.pointer_x - 1) and self.validation(self.pointer_y - 1) and self.obstruction(
+                self.pointer_x - 1, self.pointer_y - 1) is True:  # SOUTH WEST
+            self.table[self.pointer_x - 1, self.pointer_y - 1] = 1
+            self.pointer_x = self.pointer_x - 1
+            self.pointer_y = self.pointer_y - 1
+
+            # if direction is SOUTH EAST and modifying location value doesn't cause robot to fall outside the table
+        if self.dirs[5] == self.saved_direction and self.validation(self.pointer_x + 1) and self.validation(self.pointer_y - 1) and self.obstruction(
+                self.pointer_x + 1, self.pointer_y - 1) is True:  # SOUTH EAST
+            self.table[self.pointer_x + 1, self.pointer_y - 1] = 1
+            self.pointer_x = self.pointer_x + 1
+            self.pointer_y = self.pointer_y - 1
+
     # Rotate 90 degrees to left and set new direction
     def set_left(self):
         # 0 - NORTH, 1 - SOUTH, 2 - EAST, 3 - WEST
         if self.saved_direction == self.dirs[0]:  # NORTH
-            self.saved_direction = self.dirs[3]  # WEST
+            self.saved_direction = self.dirs[6]  # NORTH WEST
         elif self.saved_direction == self.dirs[1]:  # SOUTH
-            self.saved_direction = self.dirs[2]  # EAST
+            self.saved_direction = self.dirs[5]  # SOUTH EAST
         elif self.saved_direction == self.dirs[2]:  # EAST
-            self.saved_direction = self.dirs[0]  # NORTH
+            self.saved_direction = self.dirs[4]  # NORTH EAST
         elif self.saved_direction == self.dirs[3]:  # WEST
+            self.saved_direction = self.dirs[7]  # SOUTH WEST
+        # 4 - NORTH EAST, 5 - SOUTH EAST, 6 - NORTH WEST, 7 - SOUTH WEST
+        elif self.saved_direction == self.dirs[4]:  # NORTH EAST
+            self.saved_direction = self.dirs[0]  # NORTH
+        elif self.saved_direction == self.dirs[7]:  # SOUTH WEST
             self.saved_direction = self.dirs[1]  # SOUTH
+        elif self.saved_direction == self.dirs[6]:  # NORTH WEST
+            self.saved_direction = self.dirs[3]  # WEST
+        elif self.saved_direction == self.dirs[5]:  # SOUTH EAST
+            self.saved_direction = self.dirs[2]  # EAST
 
     # Rotate 90 degrees to right and set new direction
     def set_right(self):
         # 0 - NORTH, 1 - SOUTH, 2 - EAST, 3 - WEST
         if self.saved_direction == self.dirs[0]:  # NORTH
-            self.saved_direction = self.dirs[2]  # EAST
+            self.saved_direction = self.dirs[4]  # NORTH EAST
         elif self.saved_direction == self.dirs[1]:  # SOUTH
-            self.saved_direction = self.dirs[3]  # WEST
+            self.saved_direction = self.dirs[7]  # SOUTH WEST
         elif self.saved_direction == self.dirs[2]:  # EAST
-            self.saved_direction = self.dirs[1]  # SOUTH
+            self.saved_direction = self.dirs[5]  # SOUTH EAST
         elif self.saved_direction == self.dirs[3]:  # WEST
+            self.saved_direction = self.dirs[6]  # NORTH WEST
+        # 4 - NORTH EAST, 5 - SOUTH EAST, 6 - NORTH WEST, 7 - SOUTH WEST
+        elif self.saved_direction == self.dirs[4]:  # NORTH EAST
+            self.saved_direction = self.dirs[2]  # EAST
+        elif self.saved_direction == self.dirs[7]:  # SOUTH WEST
+            self.saved_direction = self.dirs[3]  # WEST
+        elif self.saved_direction == self.dirs[6]:  # NORTH WEST
             self.saved_direction = self.dirs[0]  # NORTH
+        elif self.saved_direction == self.dirs[5]:  # SOUTH EAST
+            self.saved_direction = self.dirs[1]  # SOUTH
 
     # print location and direction values
     def set_report(self):
@@ -207,7 +253,7 @@ class ToyRobot:
                 if self.validation(int(x)) and self.validation(int(y)):
                     self.set_avoid(x, y)
 
-            #print(self.pointer_x, self.pointer_y)
+            #print(self.pointer_x, self.pointer_y, self.saved_direction)
 
         # close file
         file.close()
@@ -216,7 +262,6 @@ class ToyRobot:
 
 
 # In[2]:
-
 
 #make ToyRobot object
 toy_robot = ToyRobot()
