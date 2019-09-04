@@ -31,7 +31,7 @@ class ToyRobot:
     
     #initialising location, direction, table values 
     def __init__(self):
-        self.dim=5
+        self.dim=6
         self.pointer_x=0
         self.pointer_y=0
         self.saved_direction='EAST'
