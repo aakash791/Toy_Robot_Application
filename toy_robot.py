@@ -15,12 +15,12 @@ class ToyRobot:
     W       E
         S
 
-
-    04 14 24 34 44
-    03 13 23 33 43
-    02 12 22 32 42
-    01 11 21 31 41
-    00 10 20 30 40
+    05 15 25 35 45 55
+    04 14 24 34 44 54
+    03 13 23 33 43 52
+    02 12 22 32 42 53
+    01 11 21 31 41 54
+    00 10 20 30 40 50
 
 
     north -> x = x , y + 1
@@ -52,43 +52,61 @@ class ToyRobot:
         else:
             return False 
     
-    #placing robot at x, y position, and setting the direction    
-    def set_place(self, xx, yy, direction):
-        x=int(xx)
-        y=int(yy)
+    def obstruction(self, xx, yy):
+        x = int(xx)
+        y = int(yy)
 
-        #if coordinates are valid, set the position as visited(1)
-        if self.validation(x) and self.validation(y): 
-            self.table[x,y]=1
-            self.pointer_x=x
-            self.pointer_y=y
-            self.saved_direction=direction
+        if self.table[x, y] == 2:
+            return False        # obstruction
+        else:
+            return True         # no obstruction
     
-    #moving robot one unit ahead, along the previous saved direction 
+    # placing robot at x, y position, and setting the direction and discarded if obstruction is encountered
+    def set_place(self, xx, yy, direction):
+        x = int(xx)
+        y = int(yy)
+
+        # if coordinates are valid, set the position as visited(1)
+        if self.validation(x) and self.validation(y) and self.obstruction(x, y) is True:
+            self.table[x, y] = 1
+            self.pointer_x = x
+            self.pointer_y = y
+            self.saved_direction = direction
+    
+    # avoiding robot due to obstruction on the table
+    def set_avoid(self, xx, yy):
+        x = int(xx)
+        y = int(yy)
+
+        # if coordinates are valid, specify obstruction(2)
+        if self.validation(x) and self.validation(y) and (self.pointer_x != x or self.pointer_y != y):
+            self.table[x, y] = 2
+    
+    # moving robot one unit ahead, along the previous saved direction
     def set_move(self):
         # if direction is NORTH and modifying location value doesn't cause robot to fall outside the table
-        if self.dirs[0]==self.saved_direction and self.validation(self.pointer_y+1): # NORTH
-            self.table[self.pointer_x,self.pointer_y+1]=1  
-            self.pointer_x=self.pointer_x
-            self.pointer_y=self.pointer_y+1
-        
+        if self.dirs[0] == self.saved_direction and self.validation(self.pointer_y + 1) and self.obstruction(self.pointer_x, self.pointer_y+1) is True:  # NORTH
+            self.table[self.pointer_x, self.pointer_y + 1] = 1
+            self.pointer_x = self.pointer_x
+            self.pointer_y = self.pointer_y + 1
+
         # if direction is SOUTH and modifying location value doesn't cause robot to fall outside the table
-        if self.dirs[1]==self.saved_direction and self.validation(self.pointer_y-1): # SOUTH
-            self.table[pointer_x,pointer_y-1]=1
-            self.pointer_x=self.pointer_x
-            self.pointer_y=self.pointer_y-1
-        
+        if self.dirs[1] == self.saved_direction and self.validation(self.pointer_y - 1) and self.obstruction(self.pointer_x, self.pointer_y-1) is True:  # SOUTH
+            self.table[self.pointer_x, self.pointer_y - 1] = 1
+            self.pointer_x = self.pointer_x
+            self.pointer_y = self.pointer_y - 1
+
         # if direction is EAST and modifying location value doesn't cause robot to fall outside the table
-        if self.dirs[2]==self.saved_direction and self.validation(self.pointer_x+1): # EAST
-            self.table[self.pointer_x+1,self.pointer_y]=1
-            self.pointer_x=self.pointer_x+1
-            self.pointer_y=self.pointer_y
-            
+        if self.dirs[2] == self.saved_direction and self.validation(self.pointer_x + 1) and self.obstruction(self.pointer_x+1, self.pointer_y) is True:  # EAST
+            self.table[self.pointer_x + 1, self.pointer_y] = 1
+            self.pointer_x = self.pointer_x + 1
+            self.pointer_y = self.pointer_y
+
         # if direction is WEST and modifying location value doesn't cause robot to fall outside the table
-        if self.dirs[3]==self.saved_direction and self.validation(self.pointer_x-1): # WEST
-            self.table[self.pointer_x-1,self.pointer_y]=1
-            self.pointer_x=self.pointer_x-1
-            self.pointer_y=self.pointer_y
+        if self.dirs[3] == self.saved_direction and self.validation(self.pointer_x - 1) and self.obstruction(self.pointer_x-1, self.pointer_y) is True:  # WEST
+            self.table[self.pointer_x - 1, self.pointer_y] = 1
+            self.pointer_x = self.pointer_x - 1
+            self.pointer_y = self.pointer_y
     
     # Rotate 90 degrees to left and set new direction
     def set_left(self):
@@ -160,6 +178,16 @@ class ToyRobot:
             if tokens[0]=='REPORT' and 1 in self.table.values():
                 self.set_report()
         
+            # if token is AVOID and robot has visited atleast one location
+            if tokens[0] == 'AVOID' and 1 in self.table.values():
+                nxtpart = tokens[1]
+                nxtparttokens = nxtpart.split(",")
+                x = nxtparttokens[0]  # get location x
+                y = nxtparttokens[1]  # get location y
+
+                # if coordinates are valid, place the robot at the x,y location
+                if self.validation(int(x)) and self.validation(int(y)):
+                    self.set_avoid(x, y)
         # close file
         file.close()
 
